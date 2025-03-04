@@ -12,11 +12,8 @@
 #ifndef AOM_AV1_ENCODER_AV1_QUANTIZE_H_
 #define AOM_AV1_ENCODER_AV1_QUANTIZE_H_
 
-#include <stdbool.h>
-
 #include "config/aom_config.h"
 
-#include "aom/aomcx.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/scan.h"
 #include "av1/encoder/block.h"
@@ -123,8 +120,7 @@ void av1_init_quantizer(EncQuantDequantParams *const enc_quant_dequant_params,
 
 void av1_set_quantizer(struct AV1Common *const cm, int min_qmlevel,
                        int max_qmlevel, int q, int enable_chroma_deltaq,
-                       int enable_hdr_deltaq, bool is_allintra,
-                       aom_tune_metric tuning);
+                       int enable_hdr_deltaq);
 
 int av1_quantizer_to_qindex(int quantizer);
 

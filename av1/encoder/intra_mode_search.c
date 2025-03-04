@@ -130,7 +130,6 @@ static void compute_avg_log_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int bh = (MI_SIZE * mi_size_high[bs] - bottom_overflow);
   const int is_hbd = is_cur_buf_hbd(xd);
 
-  aom_variance_fn_t vf = cpi->ppi->fn_ptr[BLOCK_4X4].vf;
   for (int i = 0; i < bh; i += MI_SIZE) {
     const int r = mi_row_in_sb + (i >> MI_SIZE_LOG2);
     for (int j = 0; j < bw; j += MI_SIZE) {
@@ -147,7 +146,8 @@ static void compute_avg_log_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
       // available with valid values.
       if (src_var < 0) {
         src_var = av1_calc_normalized_variance(
-            vf, x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+            cpi->ppi->fn_ptr[BLOCK_4X4].vf,
+            x->plane[0].src.buf + i * x->plane[0].src.stride + j,
             x->plane[0].src.stride, is_hbd);
         block_4x4_var_info->var = src_var;
         log_src_var = log1p(src_var / 16.0);
@@ -165,7 +165,8 @@ static void compute_avg_log_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
       *avg_log_src_variance += log_src_var;
 
       const int recon_var = av1_calc_normalized_variance(
-          vf, xd->plane[0].dst.buf + i * xd->plane[0].dst.stride + j,
+          cpi->ppi->fn_ptr[BLOCK_4X4].vf,
+          xd->plane[0].dst.buf + i * xd->plane[0].dst.stride + j,
           xd->plane[0].dst.stride, is_hbd);
       *avg_log_recon_variance += log1p(recon_var / 16.0);
     }

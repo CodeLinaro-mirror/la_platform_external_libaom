@@ -1328,10 +1328,6 @@ typedef struct macroblock {
   //! Threshold on the number of colors for testing palette mode.
   int color_palette_thresh;
 
-  //! Used in REALTIME coding mode: flag to indicate if the color_sensitivity
-  // should be checked at the coding block level.
-  int force_color_check_block_level;
-
   //! The buffer used by search_tx_type() to swap dqcoeff in macroblockd_plane
   // so we can keep dqcoeff of the best tx_type.
   tran_low_t *dqcoeff_buf;

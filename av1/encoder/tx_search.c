@@ -1041,13 +1041,13 @@ static inline void sort_rd(int64_t rds[], int txk[], int len) {
   }
 }
 
-static inline int64_t av1_block_error_qm(
-    const tran_low_t *coeff, const tran_low_t *dqcoeff, intptr_t block_size,
-    const qm_val_t *qmatrix, const int16_t *scan, int64_t *ssz, int bd) {
+static inline int64_t av1_block_error_qm(const tran_low_t *coeff,
+                                         const tran_low_t *dqcoeff,
+                                         intptr_t block_size,
+                                         const qm_val_t *qmatrix,
+                                         const int16_t *scan, int64_t *ssz) {
   int i;
   int64_t error = 0, sqcoeff = 0;
-  int shift = 2 * (bd - 8);
-  int rounding = (1 << shift) >> 1;
 
   for (i = 0; i < block_size; i++) {
     int64_t weight = qmatrix[scan[i]];
@@ -1064,9 +1064,6 @@ static inline int64_t av1_block_error_qm(
     error += (dd * dd + (1 << (2 * AOM_QM_BITS - 1))) >> (2 * AOM_QM_BITS);
     sqcoeff += (cc * cc + (1 << (2 * AOM_QM_BITS - 1))) >> (2 * AOM_QM_BITS);
   }
-
-  error = (error + rounding) >> shift;
-  sqcoeff = (sqcoeff + rounding) >> shift;
 
   *ssz = sqcoeff;
   return error;
@@ -1091,20 +1088,16 @@ static inline void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
 #if CONFIG_AV1_HIGHBITDEPTH
   MACROBLOCKD *const xd = &x->e_mbd;
   if (is_cur_buf_hbd(xd)) {
-    if (qmatrix == NULL || !x->txfm_search_params.use_qm_dist_metric) {
-      *out_dist = av1_highbd_block_error(coeff, dqcoeff, buffer_length,
-                                         &this_sse, xd->bd);
-    } else {
-      *out_dist = av1_block_error_qm(coeff, dqcoeff, buffer_length, qmatrix,
-                                     scan, &this_sse, xd->bd);
-    }
+    // TODO(veluca): handle use_qm_dist_metric for HBD too.
+    *out_dist = av1_highbd_block_error(coeff, dqcoeff, buffer_length, &this_sse,
+                                       xd->bd);
   } else {
 #endif
     if (qmatrix == NULL || !x->txfm_search_params.use_qm_dist_metric) {
       *out_dist = av1_block_error(coeff, dqcoeff, buffer_length, &this_sse);
     } else {
       *out_dist = av1_block_error_qm(coeff, dqcoeff, buffer_length, qmatrix,
-                                     scan, &this_sse, 8);
+                                     scan, &this_sse);
     }
 #if CONFIG_AV1_HIGHBITDEPTH
   }
